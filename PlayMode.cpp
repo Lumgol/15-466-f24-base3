@@ -63,7 +63,6 @@ Load<Sound::Sample> yeet_sample(LoadTagDefault, []() -> Sound::Sample const * {
 PlayMode::PlayMode() : scene(*game3_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
-		std::cout << transform.name << std::endl;
 		if (transform.name == "wug4") {
 			wugs[0].xform = &transform;
 			wugs[0].favorite_vowel_idx = 4;
@@ -131,7 +130,6 @@ PlayMode::PlayMode() : scene(*game3_scene) {
 	for (uint8_t i = 0; i < num_vowels; i++) {
 		vowels[i].xform->position = -camera->transform->make_local_to_parent()[2] * 0.2f + camera->transform->position;
 	}
-	printf("vowel0 position: %f, %f, %f\n", vowels[0].xform->position.x, vowels[0].xform->position.y, vowels[0].xform->position.z);
 
 	//start music loop playing:
 	// (note: position will be over-ridden in update())
