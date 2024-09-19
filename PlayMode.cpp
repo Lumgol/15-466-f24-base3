@@ -12,23 +12,23 @@
 
 #include <random>
 
-GLuint hexapod_meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("hexapod.pnct"));
-	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+GLuint game3_meshes_for_lit_color_texture_program = 0;
+Load< MeshBuffer > game3_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer const *ret = new MeshBuffer(data_path("game3.pnct"));
+	game3_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
-Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
+Load< Scene > game3_scene(LoadTagDefault, []() -> Scene const * {
+	return new Scene(data_path("game3.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+		Mesh const &mesh = game3_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = hexapod_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = game3_meshes_for_lit_color_texture_program;
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
@@ -36,32 +36,106 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 	});
 });
 
-Load< Sound::Sample > dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	return new Sound::Sample(data_path("dusty-floor.opus"));
+// Load< Sound::Sample > dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
+// 	return new Sound::Sample(data_path("dusty-floor.opus"));
+// });
+
+Load<Sound::Sample> yeet_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("yeet.wav"));
+}); Load<Sound::Sample> back_a_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("back_a.wav"));
+}); Load<Sound::Sample> low_e_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("low_e.wav"));
+}); Load<Sound::Sample> i_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("i.wav"));
+}); Load<Sound::Sample> u_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("u.wav"));
+}); Load<Sound::Sample> high_o_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("high_o.wav"));
+}); Load<Sound::Sample> schwa_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("schwa.wav"));
+}); Load<Sound::Sample> correct_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("correct.wav"));
+}); Load<Sound::Sample> incorrect_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("incorrect.wav"));
 });
 
-PlayMode::PlayMode() : scene(*hexapod_scene) {
+PlayMode::PlayMode() : scene(*game3_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
-		if (transform.name == "Hip.FL") hip = &transform;
-		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
-		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
-	}
-	if (hip == nullptr) throw std::runtime_error("Hip not found.");
-	if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
+		std::cout << transform.name << std::endl;
+		if (transform.name == "wug4") {
+			wugs[0].xform = &transform;
+			wugs[0].favorite_vowel_idx = 4;
+		}
+		else if (transform.name == "wug2") {
+			wugs[1].xform = &transform;
+			wugs[1].favorite_vowel_idx = 2;
+		}
+		else if (transform.name == "wug0") {
+			wugs[2].xform = &transform;
+			wugs[2].favorite_vowel_idx = 1;
+		}
+		else if (transform.name == "wug1") {
+			wugs[3].xform = &transform;
+			wugs[3].favorite_vowel_idx = 5;
+		}
+		else if (transform.name == "wug3") {
+			wugs[4].xform = &transform;
+			wugs[4].favorite_vowel_idx = 3;
+		}
 
-	hip_base_rotation = hip->rotation;
-	upper_leg_base_rotation = upper_leg->rotation;
-	lower_leg_base_rotation = lower_leg->rotation;
+		else if (transform.name == "schwa") {
+			vowels[0].sound = schwa_sample;
+			vowels[0].xform = &transform;
+		} else if (transform.name == "back_a") {
+			vowels[1].sound = back_a_sample;
+			vowels[1].xform = &transform;
+		} else if (transform.name == "low_e") {
+			vowels[2].sound = low_e_sample;
+			vowels[2].xform = &transform;
+		} else if (transform.name == "i") {
+			vowels[3].sound = i_sample;
+			vowels[3].xform = &transform;
+		} else if (transform.name == "u") {
+			vowels[4].sound = u_sample;
+			vowels[4].xform = &transform;
+		} else if (transform.name == "high_o") {
+			vowels[5].sound = high_o_sample;
+			vowels[5].xform = &transform;
+		}
+	};
+	for (uint8_t i = 0; i < num_wugs; i++) {
+		if (wugs[i].xform == nullptr) {
+			printf("Wug number %d\n", i);
+			throw std::runtime_error("Wug not found.");
+		}
+	}; for (uint8_t i = 0; i < num_vowels; i++) {
+		if (vowels[i].xform == nullptr) {
+			printf("Vowel number %d\n", i);
+			throw std::runtime_error("Vowel not found.");
+		}
+	}; 
+	// wug and vowel 0 start out as being selected
+	wugs[0].is_selected = 1;
+	vowels[0].is_selected = 1;
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	camera = &scene.cameras.front();
 
+	// selected wug is rotated
+	wugs[0].xform->rotation = glm::angleAxis(atan2(-camera->transform->position.y,-camera->transform->position.x), glm::vec3(0., 0., 1.));
+
+	// initialize vowel positions/rotations
+	for (uint8_t i = 0; i < num_vowels; i++) {
+		vowels[i].xform->position = -camera->transform->make_local_to_parent()[2] * 0.2f + camera->transform->position;
+	}
+	printf("vowel0 position: %f, %f, %f\n", vowels[0].xform->position.x, vowels[0].xform->position.y, vowels[0].xform->position.z);
+
 	//start music loop playing:
 	// (note: position will be over-ridden in update())
-	leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
+	// leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, wugs[0].xform->position , 10.0f);
 }
 
 PlayMode::~PlayMode() {
@@ -73,34 +147,54 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		if (evt.key.keysym.sym == SDLK_ESCAPE) {
 			SDL_SetRelativeMouseMode(SDL_FALSE);
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_a) {
+		} else if (evt.key.keysym.sym == SDLK_LEFT) {
 			left.downs += 1;
 			left.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_d) {
+		} else if (evt.key.keysym.sym == SDLK_RIGHT) {
 			right.downs += 1;
 			right.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_w) {
+		} else if (evt.key.keysym.sym == SDLK_UP) {
 			up.downs += 1;
 			up.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_s) {
+		} else if (evt.key.keysym.sym == SDLK_DOWN) {
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_w) {
+			Wug prev_wug = wugs[selected_wug_idx];
+			prev_wug.is_selected = false;
+			prev_wug.xform->rotation = glm::angleAxis(0.f, glm::vec3(0., 0., 1.));
+			selected_wug_idx = (selected_wug_idx + 1) % num_wugs;
+			Wug new_wug = wugs[selected_wug_idx];
+			new_wug.is_selected = true;
+			new_wug.xform->rotation = glm::angleAxis(atan2(-camera->transform->position.y,-camera->transform->position.x), glm::vec3(0., 0., 1.));
+			Sound::play(*(vowels[new_wug.favorite_vowel_idx].sound), 1.0f);
+		} else if (evt.key.keysym.sym == SDLK_v) {
+			vowels[selected_vowel_idx].is_selected = false;
+			selected_vowel_idx = (selected_vowel_idx + 1) % num_vowels;
+			vowels[selected_vowel_idx].is_selected = true;
+			Sound::play(*(vowels[selected_vowel_idx].sound), 1.0f);
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			// set vowel to be thrown
+			if (!vowels[selected_vowel_idx].is_thrown) {
+				vowels[selected_vowel_idx].is_thrown = true;
+				Sound::play(*yeet_sample, 1.0f);
+			}
 		}
 	} else if (evt.type == SDL_KEYUP) {
-		if (evt.key.keysym.sym == SDLK_a) {
+		if (evt.key.keysym.sym == SDLK_LEFT) {
 			left.pressed = false;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_d) {
+		} else if (evt.key.keysym.sym == SDLK_RIGHT) {
 			right.pressed = false;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_w) {
+		} else if (evt.key.keysym.sym == SDLK_UP) {
 			up.pressed = false;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_s) {
+		} else if (evt.key.keysym.sym == SDLK_DOWN) {
 			down.pressed = false;
 			return true;
 		}
@@ -129,31 +223,35 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 
-	//slowly rotates through [0,1):
-	wobble += elapsed / 10.0f;
-	wobble -= std::floor(wobble);
+	// yeet vowel at selected wug
+	Vowel curr_vowel = vowels[selected_vowel_idx];
+	if (curr_vowel.is_thrown) {
+		Wug curr_wug = wugs[selected_wug_idx];
 
-	hip->rotation = hip_base_rotation * glm::angleAxis(
-		glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
-	upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
-		glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-	lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
-		glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
+		float vowel_speed = 1.f;
+		glm::vec3 vowel_pos = curr_vowel.xform->position;
+		glm::vec3 vowel_direction = glm::normalize(curr_wug.xform->position - vowel_pos);
+		curr_vowel.xform->position += vowel_direction * vowel_speed * elapsed;
+
+		// wug collision check
+		if (std::abs(glm::distance(vowel_pos, curr_wug.xform->position)) < 0.01f) {
+			// check correctness
+			if (curr_wug.favorite_vowel_idx == selected_vowel_idx) {
+				Sound::play(*correct_sample);
+			} else Sound::play(*incorrect_sample);
+			// move vowel back
+			curr_vowel.xform->position = -camera->transform->make_local_to_parent()[2] * 0.2f + camera->transform->position;
+			vowels[selected_vowel_idx].is_thrown = false;
+		}
+	}
 
 	//move sound to follow leg tip position:
-	leg_tip_loop->set_position(get_leg_tip_position(), 1.0f / 60.0f);
+	// leg_tip_loop->set_position(wugs[0].xform->position, 1.0f / 60.0f);
 
 	//move camera:
 	{
-
 		//combine inputs into a move:
-		constexpr float PlayerSpeed = 30.0f;
+		constexpr float PlayerSpeed = 1.0f;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
 		if (!left.pressed && right.pressed) move.x = 1.0f;
@@ -206,6 +304,16 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	scene.draw(*camera);
 
+	// make wug face camera
+	wugs[selected_wug_idx].xform->rotation = glm::angleAxis(
+		atan2(-camera->transform->position.y,-camera->transform->position.x), 
+		glm::vec3(0., 0., 1.));
+
+	for (uint8_t i = 0; i < num_vowels; i++) {
+		if (!vowels[i].is_thrown) vowels[i].xform->position = -camera->transform->make_local_to_parent()[2] * 0.2f + camera->transform->position;
+		if (!vowels[i].is_selected) vowels[i].xform->position += 0.4f * camera->transform->make_local_to_parent()[2];
+	}
+
 	{ //use DrawLines to overlay some text:
 		glDisable(GL_DEPTH_TEST);
 		float aspect = float(drawable_size.x) / float(drawable_size.y);
@@ -217,20 +325,15 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		));
 
 		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+		lines.draw_text("Mouse motion rotates camera; arrow keys move; escape ungrabs mouse",
 			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
 		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+		lines.draw_text("Mouse motion rotates camera; arrow keys move; escape ungrabs mouse",
 			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 	}
 	GL_ERRORS();
-}
-
-glm::vec3 PlayMode::get_leg_tip_position() {
-	//the vertex position here was read from the model in blender:
-	return lower_leg->make_local_to_world() * glm::vec4(-1.26137f, -11.861f, 0.0f, 1.0f);
 }
